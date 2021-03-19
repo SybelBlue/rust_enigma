@@ -2,7 +2,7 @@ pub mod rotor;
 
 #[cfg(test)]
 mod test {
-    use crate::rotor::{Rotor, m3_set};
+    use crate::rotor::{Rotor, std_set};
 
     #[test]
     fn valid_i() {
@@ -31,6 +31,6 @@ mod test {
 
     #[test]
     fn test_valid_m3() {
-        m3_set();
+        std_set();
     }
 }

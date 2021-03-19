@@ -61,7 +61,7 @@ impl Rotor {
     }
 }
 
-pub fn m3_set() -> ([Rotor; 8], Reflector) {
+pub fn std_set() -> ([Rotor; 8], Reflector) {
     ( [ Rotor::new("EKMFLGDQVZNTOWYHXUSPAIBRCJ", "I")
       , Rotor::new("AJDKSIRUXBLHWTMCQGZNPYFVOE", "II")
       , Rotor::new("BDFHJLCPRTXVZNYEIWGAKMUSQO", "III")
@@ -82,12 +82,17 @@ pub struct RotorSeq {
 }
 
 impl RotorSeq {
-    pub fn new_3(pos1: Rotor, pos2: Rotor, pos3: Rotor, reflector: Reflector) -> RotorSeq {
-        RotorSeq { rotors: [pos1, pos2, pos3], fourth: None, reflector }
+    pub fn new_m3(r1: usize, r2: usize, r3: usize) -> Self {
+        let (m3, reflector) = std_set();
+        Self { rotors: [m3[r1].clone(), m3[r2].clone(), m3[r3].clone()], fourth: None, reflector }
     }
 
-    pub fn new_4(pos1: Rotor, pos2: Rotor, pos3: Rotor, pos4: Rotor, reflector: Reflector) -> RotorSeq {
-        RotorSeq { rotors: [pos1, pos2, pos3], fourth: Some(pos4), reflector }
+    pub fn new_3(pos1: Rotor, pos2: Rotor, pos3: Rotor, reflector: Reflector) -> Self {
+        Self { rotors: [pos1, pos2, pos3], fourth: None, reflector }
+    }
+
+    pub fn new_4(pos1: Rotor, pos2: Rotor, pos3: Rotor, pos4: Rotor, reflector: Reflector) -> Self {
+        Self { rotors: [pos1, pos2, pos3], fourth: Some(pos4), reflector }
     }
 
     /// encodes `c` and advances the rotors
