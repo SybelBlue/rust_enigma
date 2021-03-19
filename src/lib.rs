@@ -2,7 +2,7 @@ pub mod rotor;
 
 #[cfg(test)]
 mod test {
-    use crate::rotor::Rotor;
+    use crate::rotor::{Rotor, m3_set};
 
     #[test]
     fn valid_i() {
@@ -27,5 +27,10 @@ mod test {
             assert_eq!(((c as u8 + i as u8 - 65) % 26 + 65) as char, r.encode(c));
             r.advance();
         }
+    }
+
+    #[test]
+    fn test_valid_m3() {
+        m3_set();
     }
 }

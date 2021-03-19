@@ -6,7 +6,7 @@ pub struct Rotor {
     pub name: String,
 }
 
-type Reflector = Rotor;
+pub type Reflector = Rotor;
 
 impl Rotor {
     pub fn new(data: &str, name: &str) -> Self {
@@ -75,21 +75,51 @@ pub fn m3_set() -> ([Rotor; 8], Reflector) {
     )
 }
 
-pub struct RotorSeq(Vec<Rotor>, Reflector);
+pub struct RotorSeq {
+    rotors: [Rotor; 3],
+    fourth: Option<Rotor>, 
+    reflector: Reflector,
+}
 
 impl RotorSeq {
-    pub fn new_3(pos1: Rotor, pos2: Rotor, pos3: Rotor, refl: Reflector) -> RotorSeq {
-        RotorSeq(Vec::from([pos1, pos2, pos3]), refl)
+    pub fn new_3(pos1: Rotor, pos2: Rotor, pos3: Rotor, reflector: Reflector) -> RotorSeq {
+        RotorSeq { rotors: [pos1, pos2, pos3], fourth: None, reflector }
     }
 
-    pub fn new_4(pos1: Rotor, pos2: Rotor, pos3: Rotor, pos4: Rotor, refl: Reflector) -> RotorSeq {
-        RotorSeq(Vec::from([pos1, pos2, pos3, pos4]), refl)
+    pub fn new_4(pos1: Rotor, pos2: Rotor, pos3: Rotor, pos4: Rotor, reflector: Reflector) -> RotorSeq {
+        RotorSeq { rotors: [pos1, pos2, pos3], fourth: Some(pos4), reflector }
+    }
+
+    /// encodes `c` and advances the rotors
+    pub fn encode(&mut self, c: char) -> char {
+        let mut c = c;
+
+        for r in self.rotors.iter() {
+            c = r.encode(c);
+        }
+        if let Some(r) = &self.fourth {
+            c = r.encode(c);
+        }
+
+        c = self.reflector.encode(c);
+        // don't ever advance the reflector!
+        
+        if let Some(r) = &mut self.fourth {
+            c = r.encode(c);
+            r.advance();
+        }
+        for r in self.rotors.iter_mut().rev() {
+            c = r.encode(c);
+            r.advance();
+        }
+
+        c
     }
 
     /// returns the peek on all rotors in order, then the reflector's peek
     pub fn peeks(&self) -> Vec<(char, char, char)> {
-        let mut out: Vec<(char, char, char)> = self.0.iter().map(Rotor::peek).collect();
-        out.push(self.1.peek());
+        let mut out: Vec<(char, char, char)> = self.rotors.iter().map(Rotor::peek).collect();
+        out.push(self.reflector.peek());
         out
     }
 }
