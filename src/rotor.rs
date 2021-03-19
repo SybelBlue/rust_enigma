@@ -6,6 +6,8 @@ pub struct Rotor {
     pub name: String,
 }
 
+type Reflector = Rotor;
+
 impl Rotor {
     pub fn new(data: &str, name: &str) -> Self {
         if data.len() != 26 {
@@ -13,14 +15,21 @@ impl Rotor {
         }
         let i = 0;
         let mut arr = ['A'; 26];
+        let mut tracker = [false; 26];
         for (i, c) in data.char_indices().take(26) {
-            arr[i] = Rotor::validate_char(c);
+            let c = Rotor::validate_char(c);
+            arr[i] = c;
+            let i = c as usize - 'A' as usize;
+            if tracker[i] {
+                panic!(format!("{} has already been mapped to!", c));
+            }
+            tracker[i] = true;
         }
         let name = String::from(name);
         Self { arr, i, name }
     }
 
-    pub fn peek_setting(&self) -> (char, char, char) {
+    pub fn peek(&self) -> (char, char, char) {
         (self.get_ith(self.i - 1), self.get_ith(self.i), self.get_ith(self.i + 1))
     }
 
@@ -49,5 +58,38 @@ impl Rotor {
 
     pub(crate) fn valid_i(i: isize) -> usize {
         i.rem_euclid(26) as usize
+    }
+}
+
+pub fn m3_set() -> ([Rotor; 8], Reflector) {
+    ( [ Rotor::new("EKMFLGDQVZNTOWYHXUSPAIBRCJ", "I")
+      , Rotor::new("AJDKSIRUXBLHWTMCQGZNPYFVOE", "II")
+      , Rotor::new("BDFHJLCPRTXVZNYEIWGAKMUSQO", "III")
+      , Rotor::new("ESOVPZJAYQUIRHXLNFTGKDCMWB", "IV")
+      , Rotor::new("VZBRGITYUPSDNHLXAWMJQOFECK", "V")
+      , Rotor::new("JPGVOUMFYQBENHZRDKASXLICTW", "VI")
+      , Rotor::new("NZJHGRCXMYSWBOUFAIVLPEKQDT", "VII")
+      , Rotor::new("FKQHTLXOCBJSPDZRAMEWNIUYGV", "VIII")
+      ]
+    , Reflector::new("QYHOGNECVPUZTFDJAXWMKISRBL", "UKW")
+    )
+}
+
+pub struct RotorSeq(Vec<Rotor>, Reflector);
+
+impl RotorSeq {
+    pub fn new_3(pos1: Rotor, pos2: Rotor, pos3: Rotor, refl: Reflector) -> RotorSeq {
+        RotorSeq(Vec::from([pos1, pos2, pos3]), refl)
+    }
+
+    pub fn new_4(pos1: Rotor, pos2: Rotor, pos3: Rotor, pos4: Rotor, refl: Reflector) -> RotorSeq {
+        RotorSeq(Vec::from([pos1, pos2, pos3, pos4]), refl)
+    }
+
+    /// returns the peek on all rotors in order, then the reflector's peek
+    pub fn peeks(&self) -> Vec<(char, char, char)> {
+        let mut out: Vec<(char, char, char)> = self.0.iter().map(Rotor::peek).collect();
+        out.push(self.1.peek());
+        out
     }
 }
