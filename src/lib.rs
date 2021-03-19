@@ -2,7 +2,7 @@ pub mod rotor;
 
 #[cfg(test)]
 mod test {
-    use crate::rotor::{Rotor, std_set};
+    use crate::rotor::{Rotor, RotorSeq, std_set};
 
     #[test]
     fn valid_i() {
@@ -32,5 +32,11 @@ mod test {
     #[test]
     fn test_valid_m3() {
         std_set();
+    }
+
+    #[test]
+    fn test_rotor_seq() {
+        let mut rs = RotorSeq::new_m3(0, 1, 2);
+        assert_eq!(String::from("AAAAA").chars().map(|c| rs.encode(c)).collect::<String>(), String::from("BDZGO"));
     }
 }

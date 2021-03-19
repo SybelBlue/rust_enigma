@@ -29,8 +29,8 @@ impl Rotor {
         Self { arr, i, name }
     }
 
-    pub fn peek(&self) -> (char, char, char) {
-        (self.get_ith(self.i - 1), self.get_ith(self.i), self.get_ith(self.i + 1))
+    pub fn peek(&self) -> char {
+        (65u8 + self.i as u8) as char
     }
 
     pub fn encode(&self, c: char) -> char {
@@ -38,10 +38,13 @@ impl Rotor {
         self.get_ith(self.i + n as isize)
     }
     
-    pub fn advance(&mut self) {
+    pub fn advance(&mut self) -> bool {
         self.i += 1;
         if self.i == 26 {
             self.i = 0;
+            true
+        } else {
+            false
         }
     }
 
@@ -71,7 +74,7 @@ pub fn std_set() -> ([Rotor; 8], Reflector) {
       , Rotor::new("NZJHGRCXMYSWBOUFAIVLPEKQDT", "VII")
       , Rotor::new("FKQHTLXOCBJSPDZRAMEWNIUYGV", "VIII")
       ]
-    , Reflector::new("QYHOGNECVPUZTFDJAXWMKISRBL", "UKW")
+    , Reflector::new("YRUHQSLDPXNGOKMIEBFZCWVJAT", "UKW-B")
     )
 }
 
@@ -97,34 +100,50 @@ impl RotorSeq {
 
     /// encodes `c` and advances the rotors
     pub fn encode(&mut self, c: char) -> char {
+        print!("{:?} ", self.peeks());
+
         let mut c = c;
+        print!("{}", c);
 
         for r in self.rotors.iter() {
             c = r.encode(c);
+            print!("{}", c);
         }
         if let Some(r) = &self.fourth {
             c = r.encode(c);
+            print!("{}", c);
         }
 
         c = self.reflector.encode(c);
+        print!("{}", c);
         // don't ever advance the reflector!
         
         if let Some(r) = &mut self.fourth {
             c = r.encode(c);
-            r.advance();
+            print!("{}", c);
         }
-        for r in self.rotors.iter_mut().rev() {
+        for r in self.rotors.iter().rev() {
             c = r.encode(c);
-            r.advance();
+            print!("{}", c);
         }
 
+        if self.rotors[0].advance() {
+            if self.rotors[1].advance() {
+                if self.rotors[2].advance() {
+                    if let Some(r) = &mut self.fourth {
+                        r.advance();
+                    }
+                }
+            }
+        }
+
+        println!(" {:?}", self.peeks());
+        // println!("{:?}", self.rotors.iter().map(|r| r.name.clone()).collect::<Vec<String>>());
         c
     }
 
-    /// returns the peek on all rotors in order, then the reflector's peek
-    pub fn peeks(&self) -> Vec<(char, char, char)> {
-        let mut out: Vec<(char, char, char)> = self.rotors.iter().map(Rotor::peek).collect();
-        out.push(self.reflector.peek());
-        out
+    /// returns the peek on all rotors in forward order
+    pub fn peeks(&self) -> Vec<char> {
+        self.rotors.iter().map(Rotor::peek).rev().collect()
     }
 }
