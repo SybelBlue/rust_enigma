@@ -1,4 +1,5 @@
 /// A struct that represents a single rotor in enigma
+#[derive(Debug, Clone)]
 pub struct Rotor {
     arr: [char; 26],
     i: isize,
@@ -30,7 +31,9 @@ impl Rotor {
     
     pub fn advance(&mut self) {
         self.i += 1;
-        self.i %= 26;
+        if self.i == 26 {
+            self.i = 0;
+        }
     }
 
     fn validate_char(c: char) -> char {
@@ -44,7 +47,7 @@ impl Rotor {
         self.arr[Rotor::valid_i(i)]
     }
 
-    fn valid_i(i: isize) -> usize {
+    pub(crate) fn valid_i(i: isize) -> usize {
         i.rem_euclid(26) as usize
     }
 }
